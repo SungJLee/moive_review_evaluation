@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>navbar</title>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-light p-3 bg-warning fw-bold">
+  <div class="container-fluid">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-camera-reels-fill mx-3" viewBox="0 0 16 16">
+      <path d="M6 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+      <path d="M9 6a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+      <path d="M9 6h.5a2 2 0 0 1 1.983 1.738l3.11-1.382A1 1 0 0 1 16 7.269v7.462a1 1 0 0 1-1.406.913l-3.111-1.382A2 2 0 0 1 9.5 16H2a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h7z"/>
+    </svg>
+    <a class="navbar-brand" href="{{ url_for('evaluation.page') }}">영화 리뷰 사이트</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav mx-3">
+        <li class="nav-item">
+          <a class="nav-link" aria-current="page" href="{{ url_for('evaluation.page') }}">영화리뷰분석</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="{{ url_for('evaluation.manual') }}">사용법</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!--    <div class="p-3 h2 fw-bold bg-warning text-center "> 영화 리뷰 사이트 </div>-->
+</body>
+</html>
