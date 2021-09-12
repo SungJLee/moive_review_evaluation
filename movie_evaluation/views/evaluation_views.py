@@ -348,7 +348,10 @@ def word_count(sentences_tag):
 def wordCloud_Image(word_count_list):
 
     # wordCloud 생성 (한글 폰트중 일부는 지원 않되는 것이 있음)
-    wc = WordCloud(font_path="C:/Winodws/Fonts/batang.ttc", background_color = 'white', width = 800, height = 600)
+
+    fonts = os.path.dirname(__file__) + '/fonts/batang.ttc'
+
+    wc = WordCloud(font_path=fonts, background_color = 'white', width = 800, height = 600)
     counts = (dict(word_count_list))
 
     cloud = wc.generate_from_frequencies(counts)
