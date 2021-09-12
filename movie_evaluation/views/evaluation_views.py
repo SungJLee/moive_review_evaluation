@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 from io import BytesIO
 
 import nltk as nltk
@@ -55,6 +56,17 @@ def get_soup_html(url):
     soup = bs(html.text, 'html.parser')
 
     return soup
+
+'''
+    @method : get_movie_name
+    @brief  : 영화제목을 가져오는 함수입니다.
+    @detail : 영화제목을 가져오는 함수입니다.
+    @author : 이성재
+    @since  : 2021.09.05
+    @param  : url 네이버 영화정보 담긴 url입니다.
+    @return : 네이버 영화 정보 담긴 페이지에서 영화 제목을 리턴합니다.
+    @why    : 영화 뉴스 기사 빈도분석을 위해 영화 제목이 필요해 만들었습니다.
+'''
 
 # 제목
 def get_movie_name(soup):
@@ -229,6 +241,19 @@ def get_not_sympathys(soup):
 
 # ----------------------- 빈도분석 함수 ------------------------------
 
+'''
+    @method : get_titles
+    @brief  : 영화 뉴스 기사 제목들을 크롤링합니다.
+    @detail : 네이버 뉴스에 영화 제목을 검색해 뉴스 기사 제목들을 크롤링합니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : search_word 검색 키워드,
+              start_num   뉴스 목록 시작페이지,
+              end_num     뉴스 목록 끝 페이지,
+    @return : 크롤링한 뉴스 제목 리스트를 반환합니다.
+    @why    : 뉴스 제목의 단어 빈도분석을 하기 위해 만들었습니다.
+'''
+
 # 네이버 뉴스에 영화 제목을 검색하는 크롤링
 def get_titles(search_word, start_num , end_num):
     title_list = []
@@ -258,6 +283,17 @@ def get_titles(search_word, start_num , end_num):
 
         start_num += 10
 
+'''
+    @method : sentence_tag
+    @brief  : 문장을 형태소로 분류합니다.
+    @detail : 영화 뉴스 제목들이 담긴 리스트들을 (단어 : 형태소) 형태로 분류합니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : title_list 영화 뉴스 제목가 담긴 리스트입니다.
+    @return : 영화 뉴스 제목을 형태소 분석해 (단어 : 형태소)로 반환합니다.
+    @why    : 형태소로 분석해 명사와 형용사 부분만 가져오기 위해서 필요한 사전작업이기 때문에 만들었습니다.
+'''
+
 # 문장을 형태소로 분류
 def sentence_tag(title_list):
     okt = Okt()
@@ -269,6 +305,17 @@ def sentence_tag(title_list):
         sentences_tag.append(morph)
 
     return sentences_tag
+
+'''
+    @method : word_count
+    @brief  : 명사와 형용사를 구분해서 같은 단어 갯수를 카운트하는 함수입니다.
+    @detail : 명사와 형용사를 고르고 같은 단어 갯수를 카운트합니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : sentences_tag (단어 : 형태소) 형태로 이루어진 리스트입니다.
+    @return : (단어 : 카운트 수) 형태로 반환합니다.
+    @why    : 카운트 수가 많은 단어일 수록 더 크게 보여져야 하기 때문에 각 단어들을 카운트합니다.
+'''
 
 # 단어별 카운트
 def word_count(sentences_tag):
@@ -285,6 +332,17 @@ def word_count(sentences_tag):
     tags = counts.most_common()
 
     return tags
+
+'''
+    @method : wordCloud_Image
+    @brief  : 카운트된 데이터를 이미지화 합니다.
+    @detail : 카운트된 데이터를 이미지화 합니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : word_count_list (단어 : 단어갯수)
+    @return : 만든 클라우드 이미지를 png 형태로 저장해 byte형태로 바꿔서 반환합니다.
+    @why    : 클라우드 이미지를 만들어 라우트의 값을 넘길 때 그냥 넘길 수 없기 때문에 byte로 바꿔서 보내 다시 이미지화 하기 위해 만들었습니다.
+'''
 
 # 단어별로 카운트된 데이터를 이미지화
 def wordCloud_Image(word_count_list):
@@ -313,10 +371,12 @@ def wordCloud_Image(word_count_list):
 okt = Okt()
 
 # 긍정, 부정 분석을 학습한 모델 결과를 불러옵니다.
-model = load_model('c:/projects/movie_evaluation_project/movie_evaluation/views/naver_data/msmc_model.h5')
+file_name = os.path.dirname(__file__) + '/naver_data/msmc_model.h5'
+model = load_model(file_name)
 
 # 어떤 단어가 어떤 형태소인지에 대해 적힌 json 파일을 이용해 빈도 분석을 합니다.
-with open('c:/projects/movie_evaluation_project/movie_evaluation/views/naver_data/train_docs.json') as f:
+file_json = os.path.dirname(__file__) + '/naver_data/train_docs.json'
+with open(file_json) as f:
     train_docs = json.load(f)
 
 tokens = [t for d in train_docs for t in d[0]]
@@ -325,14 +385,46 @@ text = nltk.Text(tokens, name='NMSC')
 # 출현 빈도가 높은 상위 토큰 2000개을 가져와 리스트 형식으로 넣는다
 selected_words = [f[0] for f in text.vocab().most_common(2000)]
 
+'''
+    @method : tokenize
+    @brief  : 문장을 (단어/형태소) 형태로 분류해 리스트로 만듭니다.
+    @detail : 문장을 (단어/형태소) 형태로 분류해 리스트로 만듭니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : doc 분석할 문장입니다.
+    @return : 문장을 (단어/형태소)형태로 분류해 리스트로 반환합니다.
+    @why    : 문장을 긍정인지 부정인지 분석하기 위해서 형태소 단위로 쪼개야 긍정, 부정이 분류되어 있는 파일과 분류해 긍정인지 부정인지 알 수 있기 때문에 만들었습니다.
+'''
+
 # 문장을 (단어/형태소) 형태로 분류해 리스트로 만듭니다.
 def tokenize(doc):
     return ['/'.join(t) for t in okt.pos(doc, norm=True, stem=True)]
+
+'''
+    @method : term_frequency
+    @brief  : 단어/형태소 형태로 분류한 거
+    @detail : 출현 빈도가 높은 2000개의 단어에 해당하는 것이 있는지 확인하고 몇번 나오는지 갯수를 세어준다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : doc (단어/형태소) 형태한 리스트입니다.
+    @return : 2000개의 단어 데이터를 가지고 리스트로 만듭니다.
+    @why    : 문장을 긍정인지 부정인지 분석하기 위해서 형태소 단위로 쪼개야 긍정, 부정이 분류되어 있는 파일과 분류해 긍정인지 부정인지 알 수 있기 때문에 만들었습니다.
+'''
 
 # 출현 빈도가 높은 2000개의 단어에 해당하는 것이 있는지 확인하고 몇번 나오는지 갯수를 세어준다.
 def term_frequency(doc):
     return [doc.count(word) for word in selected_words]  # 2000개 중에 포함되는 단어
 
+'''
+    @method : predict_pos_neg
+    @brief  : 문장을 (단어/형태소) 형태로 분류해 리스트로 만듭니다.
+    @detail : 문장을 (단어/형태소) 형태로 분류해 리스트로 만듭니다.
+    @author : 이성재
+    @since  : 2021.09.06
+    @param  : doc 분석할 문장입니다.
+    @return : 문장을 (단어/형태소)형태로 분류해 리스트로 반환합니다.
+    @why    : 문장을 긍정인지 부정인지 분석하기 위해서 형태소 단위로 쪼개야 긍정, 부정이 분류되어 있는 파일과 분류해 긍정인지 부정인지 알 수 있기 때문에 만들었습니다.
+'''
 
 def predict_pos_neg(review):
     # 리뷰 내용 형태소 분석합니다.

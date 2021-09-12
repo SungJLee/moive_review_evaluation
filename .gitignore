@@ -1,2 +1,4 @@
 .idea
 __pycache__
+movie_evaluation/__pycache__
+*.pyc
