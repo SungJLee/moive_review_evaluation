@@ -376,7 +376,7 @@ model = load_model(file_name)
 
 # 어떤 단어가 어떤 형태소인지에 대해 적힌 json 파일을 이용해 빈도 분석을 합니다.
 file_json = os.path.dirname(__file__) + '/naver_data/train_docs.json'
-with open(file_json) as f:
+with open(file_json, encoding="cp949") as f:
     train_docs = json.load(f)
 
 tokens = [t for d in train_docs for t in d[0]]
